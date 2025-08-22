@@ -6,6 +6,8 @@
 cmake_minimum_required(VERSION 3.4.1)
 include_directories(${CMAKE_SOURCE_DIR}/includes)
 link_directories(${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -15,13 +17,17 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     string(APPEND CMAKE_CXX_FLAGS " -Wno-missing-braces -Wno-c++11-narrowing -Wwritable-strings -DANDROID_STL=c++_shared")
 endif ()
 add_library( # Sets the name of the library.
-        ipneigh-android
+        nativenetworktools-android
 
         # Sets the library as a shared library.
         SHARED
 
         # Provides a relative path to your source file(s).
         ip_neigh.c
+        # mac_addr.c
+        # mac_addr_new.c
+        # ifaddrs.c
+        # ifaddrs.h
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -42,7 +48,7 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        ipneigh-android
+        nativenetworktools-android
 
         # Links the target library to the log library
         # included in the NDK.

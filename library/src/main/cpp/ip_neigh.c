@@ -26,7 +26,6 @@
 #define NUD_PERMANENT        0x80
 #define NUD_NONE        0x00
 
-
 int do_route_dump_request(int sock)
 {
     struct {
@@ -43,11 +42,11 @@ int do_route_dump_request(int sock)
     int sent = send(sock, &nl_request, sizeof(nl_request), 0);
 
     if(sent > 0)
-        __android_log_print(ANDROID_LOG_ERROR, LOGTAG,  "Message sent");
-
+        __android_log_print(ANDROID_LOG_INFO, LOGTAG,  "Message sent");
 
     return sent;
 }
+
 int rtnl_receive(int fd, struct msghdr *msg, int flags)
 {
     int len;
@@ -70,6 +69,7 @@ int rtnl_receive(int fd, struct msghdr *msg, int flags)
 
     return len;
 }
+
 static int rtnl_recvmsg(int fd, struct msghdr *msg, char **answer)
 {
     struct iovec *iov = msg->msg_iov;
@@ -111,12 +111,7 @@ static int rtnl_recvmsg(int fd, struct msghdr *msg, char **answer)
     return len;
 }
 
-
-
-int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclass clazz,
-                                                                  jint fileDescriptor) {
-
-
+int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclass clazz, jint fileDescriptor) {
     FILE *fd = fdopen(fileDescriptor, "w");
     if (fd == NULL) {
         perror("Cannot fdopen");
@@ -126,7 +121,7 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
     struct sockaddr_nl saddr;
     int s = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
     if (s < 0) {
-        __android_log_write(ANDROID_LOG_ERROR, LOGTAG,  "socket netlink failed");
+        __android_log_write(ANDROID_LOG_ERROR, LOGTAG,  "Socket netlink failed");
         exit(EXIT_FAILURE);
     }
 
@@ -135,11 +130,10 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
     saddr.nl_pid = getpid();
 
     if(do_route_dump_request(s) < 0){
-        __android_log_write(ANDROID_LOG_ERROR, LOGTAG,  "socket send failed");
+        __android_log_write(ANDROID_LOG_ERROR, LOGTAG,  "Socket send failed");
         return -1;
     }else
-        __android_log_write(ANDROID_LOG_ERROR, LOGTAG,  "socket send success");
-
+        __android_log_write(ANDROID_LOG_INFO, LOGTAG,  "Socket send success");
 
     struct sockaddr_nl nladdr;
     struct iovec iov;
@@ -152,8 +146,8 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
     char *buf;
 
     int len = rtnl_recvmsg(s, &msg, &buf);
-    if(len<0)
-        __android_log_write(ANDROID_LOG_ERROR, LOGTAG,  "recv_len < 0");
+    if (len<0)
+        __android_log_write(ANDROID_LOG_ERROR, LOGTAG, "recv_len < 0");
 
     struct nlmsghdr *h = (struct nlmsghdr *)buf;
     struct  rtmsg *route_entry;  /* This struct represent a route entry \
@@ -170,13 +164,10 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
     struct rtattr *rta_ptr;
     struct  ndmsg *rtmp ;
 
-
     int msglen = len;
-
 
     while (NLMSG_OK(h, msglen)) {
         if(h->nlmsg_type == 28) {
-
 
             if (h->nlmsg_flags & NLM_F_DUMP_INTR) {
                 __android_log_write(ANDROID_LOG_ERROR, LOGTAG, "Dump was interrupted");
@@ -197,9 +188,7 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
                 free(buf);
             }
 
-
             route_entry = (struct rtmsg *) NLMSG_DATA(h);
-
 
             route_netmask = route_entry->rtm_dst_len;
             route_protocol = route_entry->rtm_protocol;
@@ -223,7 +212,6 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
             printf("route to destination --> %s/%d proto %d and gateway %s\n",
                    destination_address, route_netmask, route_protocol, gateway_address);
 
-
             inf_msg_ptr = (struct ifinfomsg *) NLMSG_DATA(h);
             rta_ptr = (struct rtattr *) IFLA_RTA(inf_msg_ptr);
 
@@ -233,10 +221,9 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
             char ifname[1024];
             if_indextoname(inf_msg_ptr->ifi_index, ifname);
 
-
             switch (rtmp->ndm_state) {
                 case NUD_REACHABLE:
-                    __android_log_print(ANDROID_LOG_ERROR, LOGTAG,
+                    __android_log_print(ANDROID_LOG_INFO, LOGTAG,
                                         "%s dev %s lladdr %02x:%02x:%02x:%02x:%02x:%02x REACHABLE\n",
                                         destination_address, ifname, mac_buf[4], mac_buf[5],
                                         mac_buf[6],
@@ -246,10 +233,9 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
                             destination_address, ifname, mac_buf[4], mac_buf[5],
                             mac_buf[6],
                             mac_buf[7], mac_buf[8], mac_buf[9]);
-
                     break;
                 case NUD_STALE:
-                    __android_log_print(ANDROID_LOG_ERROR, LOGTAG,
+                    __android_log_print(ANDROID_LOG_INFO, LOGTAG,
                                         "%s dev %s lladdr %02x:%02x:%02x:%02x:%02x:%02x STALE\n",
                                         destination_address, ifname, mac_buf[4], mac_buf[5],
                                         mac_buf[6],
@@ -260,7 +246,7 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
                             mac_buf[7], mac_buf[8], mac_buf[9]);
                     break;
                 case NUD_DELAY:
-                    __android_log_print(ANDROID_LOG_ERROR, LOGTAG,
+                    __android_log_print(ANDROID_LOG_INFO, LOGTAG,
                                         "%s dev %s lladdr %02x:%02x:%02x:%02x:%02x:%02x DELAY\n",
                                         destination_address, ifname, mac_buf[4], mac_buf[5],
                                         mac_buf[6],
@@ -268,10 +254,9 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
                     fprintf(fd,"%s dev %s lladdr %02x:%02x:%02x:%02x:%02x:%02x DELAY\n",
                             destination_address, ifname, mac_buf[4], mac_buf[5], mac_buf[6],
                             mac_buf[7], mac_buf[8], mac_buf[9]);
-
                     break;
                 case NUD_PROBE:
-                    __android_log_print(ANDROID_LOG_ERROR, LOGTAG,
+                    __android_log_print(ANDROID_LOG_INFO, LOGTAG,
                                         "%s dev %s lladdr %02x:%02x:%02x:%02x:%02x:%02x PROBE\n",
                                         destination_address, ifname, mac_buf[4], mac_buf[5],
                                         mac_buf[6],
@@ -282,7 +267,7 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
                             mac_buf[7], mac_buf[8], mac_buf[9]);
                     break;
                 case NUD_FAILED:
-                    __android_log_print(ANDROID_LOG_ERROR, LOGTAG,
+                    __android_log_print(ANDROID_LOG_INFO, LOGTAG,
                                         "%s dev %s lladdr FAILED\n",
                                         destination_address, ifname);
                     fprintf(fd,"%s dev %s lladdr FAILED\n",
@@ -295,7 +280,7 @@ int JNICALL Java_it_alessangiorgi_ipneigh30_ArpNDK_ARPFromJNI(JNIEnv *env, jclas
         }
         h = NLMSG_NEXT(h, msglen);
     }
-    __android_log_write(ANDROID_LOG_ERROR, LOGTAG,  "arp-Finish");
+    __android_log_write(ANDROID_LOG_INFO, LOGTAG,  "arp-Finish");
 
     free(buf);
 

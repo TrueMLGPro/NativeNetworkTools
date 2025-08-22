@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">Ip Neigh Android targetSDK 30</string>
-    <string name="arp_table">Arp Table</string>
+    <string name="app_name">IP Neigh SDK 30</string>
+    <string name="arp_table">ARP Table</string>
+<!--    <string name="mac_addr">MAC Address</string>-->
 </resources>

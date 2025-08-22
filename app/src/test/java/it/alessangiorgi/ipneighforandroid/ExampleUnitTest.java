@@ -1,4 +1,4 @@
-package it.sangiorgisrl.ipneighforandroid;
+package it.alessangiorgi.ipneighforandroid;
 
 import org.junit.Test;
 

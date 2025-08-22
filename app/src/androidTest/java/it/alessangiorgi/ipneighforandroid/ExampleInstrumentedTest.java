@@ -1,4 +1,4 @@
-package it.sangiorgisrl.ipneighforandroid;
+package it.alessangiorgi.ipneighforandroid;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("it.sangiorgisrl.ipneighforandroid", appContext.getPackageName());
+        assertEquals("it.alessangiorgi.ipneighforandroid", appContext.getPackageName());
     }
 }

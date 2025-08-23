@@ -4,6 +4,9 @@
 # Sets the minimum version of CMake required to build the native library.
 
 cmake_minimum_required(VERSION 3.4.1)
+
+project(nativenetworktools-android)
+
 include_directories(${CMAKE_SOURCE_DIR}/includes)
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_C_STANDARD 11)

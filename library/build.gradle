@@ -41,7 +41,6 @@ android {
         targetCompatibility "17"
     }
     lint {
-        baseline = file("lint-baseline.xml")
         disable 'ExpiredTargetSdkVersion' // Ignore: Google Play requires that apps target API level 33 or higher.
         checkReleaseBuilds false
         abortOnError false

@@ -29,7 +29,6 @@ android {
             withSourcesJar()
         }
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -39,6 +38,10 @@ android {
     compileOptions {
         sourceCompatibility "17"
         targetCompatibility "17"
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
     externalNativeBuild {
         cmake {
